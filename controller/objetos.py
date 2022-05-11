@@ -1,3 +1,4 @@
+from numpy import place
 import pygame
 
 
@@ -10,23 +11,36 @@ class Player:
         self.velocidade_p = velocidade_p
         self.tamanho_tela = tamanho_tela
 
-
     def get_local(self):
+        '''
+        -> Obter o valor da posicao do player.
+        :return: A posição referente ao eixo X, a posição referente ao eixo Y
+        '''
         return (self.posicao[0], self.posicao[0] + self.tamanho[0]), (self.posicao[1], self.posicao[1] + self.tamanho[1])
 
     def move_top(self):
+        '''
+        -> Move o player para cima, o impedindo de sair da tela.
+        '''
         if self.posicao[1] >= 0:  
             self.velocidade = self.velocidade_p * -1
         else: 
             self.velocidade = 0
     
     def move_down(self):
+        '''
+        -> Move o player para baixo, o impedindo de sair da tela.
+        '''
         if self.posicao[1] + self.tamanho[1] <= self.tamanho_tela[1]:
             self.velocidade = self.velocidade_p
         else: 
             self.velocidade = 0
         
     def saiu_tela(self):
+        '''
+        -> Verifica se o player saiu da tela.
+        :return: True se saiu da tela, False se não saiu.
+        '''
         if self.posicao[1] <= 0:
             return True
         elif self.posicao[1] + self.tamanho[1] >= self.tamanho_tela[1]:
@@ -35,10 +49,17 @@ class Player:
             return False
 
     def calcular_posicao(self):
+        '''
+        -> Calcula a nova posição do player
+        '''
         self.posicao[1] += self.velocidade
         self.velocidade = 0
 
     def desenhar(self, tela):
+        '''
+        -> Desenha o player na tela
+        :param tela: tela a ser desenhada
+        '''
         self.calcular_posicao()
 
         pygame.draw.rect(tela, self.cor, pygame.Rect(self.posicao[0], self.posicao[1], self.tamanho[0], self.tamanho[1]))
@@ -53,31 +74,35 @@ class Bola:
         self.velocidade = velocidade
 
     def colisao_cima_baixo(self):
-        if self.posicao[1] <= 0 + self.raio:
+        '''
+        -> Verifica se o objeto teve uma colisão com a parte superior ou inferior da tela
+        :return: True se teve colisão
+        '''
+        if self.posicao[1] <= 0 + self.raio or self.posicao[1] + self.raio >= self.tamanho_tela[1]:
             return True
-        
-        elif self.posicao[1] + self.raio >= self.tamanho_tela[1]:
-            return True
-
         else:
             return False
 
     def colisao_player(self, p):
+        '''
+        -> verifica se o objeto teve colisão com o player.
+        :param p: player a ser verificado.
+        :return: True se teve colisão.
+        '''
 
-        if self.posicao[0] - self.raio <= p[0][0][1] and self.posicao[1] > p[0][1][0] and self.posicao[1] < p[0][1][1]:
-            return True
 
-        if self.posicao[0] + self.raio >= p[1][0][0] and self.posicao[1] > p[1][1][0] and self.posicao[1] < p[1][1][1]:
-            return True
-        
+        if p[0][0] <= self.posicao[0] <= p[0][1] and p[1][0] <= self.posicao[1] <= p[1][1]:
+                return True
+
         return False
 
     def calcular_posicao(self, players):
         if self.colisao_cima_baixo():
             self.velocidade[1] *= -1
         
-        if self.colisao_player(players):
-            self.velocidade[0] *= -1
+        for player in players:
+            if self.colisao_player(player):
+                self.velocidade[0] *= -1
 
         self.posicao[0] += self.velocidade[0]
         self.posicao[1] += self.velocidade[1]

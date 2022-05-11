@@ -83,6 +83,23 @@ class Bola:
         else:
             return False
 
+    def posicao_real_relativa_a_velocida(self):
+        '''
+        -> Calcula a posição do objeto dependendo da sua velocidade
+        :return: posição X/Y
+        '''
+        if self.velocidade[0] > 0:
+            posicao_bola_x = self.posicao[0] + self.raio
+        else:
+            posicao_bola_x = self.posicao[0] - self.raio
+        
+        if self.velocidade[1] > 0:
+            posicao_bola_y = self.posicao[1] + self.raio
+        else:
+            posicao_bola_y = self.posicao[1] - self.raio
+
+        return posicao_bola_x, posicao_bola_y
+
     def colisao_player(self, p):
         '''
         -> verifica se o objeto teve colisão com o player.
@@ -90,8 +107,10 @@ class Bola:
         :return: True se teve colisão.
         '''
 
+        posicao_bola_x, posicao_bola_y = self.posicao_real_relativa_a_velocida()
 
-        if p[0][0] <= self.posicao[0] <= p[0][1] and p[1][0] <= self.posicao[1] <= p[1][1]:
+        if p[0][0] <= posicao_bola_x <= p[0][1] and p[1][0] <= posicao_bola_y <= p[1][1]:
+                print(True)
                 return True
 
         return False

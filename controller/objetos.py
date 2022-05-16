@@ -1,4 +1,5 @@
-from numpy import place
+from ctypes.wintypes import tagMSG
+from pickletools import TAKEN_FROM_ARGUMENT1
 import pygame
 
 
@@ -66,9 +67,9 @@ class Player:
 
 
 class Bola:
-    def __init__(self, posicao=list, tamanho_tela=tuple, raio=10, cor=[255,255,255], velocidade=[5, 5]):
+    def __init__(self, posicao=list, tamanho_tela=tuple, tamanho=20, cor=[255,255,255], velocidade=[5, 5]):
         self.posicao = posicao
-        self.raio = raio
+        self.tamanho = tamanho
         self.cor = cor
         self.tamanho_tela = tamanho_tela
         self.velocidade = velocidade
@@ -78,25 +79,31 @@ class Bola:
         -> Verifica se o objeto teve uma colisão com a parte superior ou inferior da tela
         :return: True se teve colisão
         '''
-        if self.posicao[1] <= 0 + self.raio or self.posicao[1] + self.raio >= self.tamanho_tela[1]:
+        if self.posicao[1] <= 0 or self.posicao[1] + self.tamanho >= self.tamanho_tela[1]:
             return True
         else:
             return False
 
-    def posicao_real_relativa_a_velocida(self):
+    def saiu_fora_direito_esquerdo(self):
         '''
-        -> Calcula a posição do objeto dependendo da sua velocidade
-        :return: posição X/Y
+        -> Verifica se o objeto colidiu com o lado direito e esquerdo da tela
+        :return: True se saiu
         '''
+        if self.posicao[0] <= 0 or self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
+            return True
+        return False
+    
+    def get_local_vel(self):
+        '''
+        -> Obter o valor da posicao do objeto relativo a velocidade no eixo X e das duas no eio Y.
+        :return: A posição referente ao eixo X e posição referente ao eixo Y
+        '''
+
         if self.velocidade[0] > 0:
-            posicao_bola_x = self.posicao[0] + self.raio
+            posicao_bola_x = self.posicao[0] + self.tamanho
         else:
-            posicao_bola_x = self.posicao[0] - self.raio
-        
-        if self.velocidade[1] > 0:
-            posicao_bola_y = self.posicao[1] + self.raio
-        else:
-            posicao_bola_y = self.posicao[1] - self.raio
+            posicao_bola_x = self.posicao[0]
+        posicao_bola_y = (self.posicao[1], self.posicao[1] + self.tamanho)
 
         return posicao_bola_x, posicao_bola_y
 
@@ -107,12 +114,10 @@ class Bola:
         :return: True se teve colisão.
         '''
 
-        posicao_bola_x, posicao_bola_y = self.posicao_real_relativa_a_velocida()
+        posicao_bola_x, posicao_bola_y = self.get_local_vel()
 
-        if p[0][0] <= posicao_bola_x <= p[0][1] and p[1][0] <= posicao_bola_y <= p[1][1]:
-                print(True)
+        if p[0][0] <= posicao_bola_x <= p[0][1] and (p[1][0] <= posicao_bola_y[0] <= p[1][1] or p[1][0] <= posicao_bola_y[1] <= p[1][1]):
                 return True
-
         return False
 
     def calcular_posicao(self, players):
@@ -127,4 +132,4 @@ class Bola:
         self.posicao[1] += self.velocidade[1]
 
     def desenhar(self, tela):
-        pygame.draw.circle(tela, self.cor, self.posicao, self.raio, 0)
+        pygame.draw.rect(tela, self.cor, pygame.Rect(self.posicao[0], self.posicao[1], self.tamanho, self.tamanho))

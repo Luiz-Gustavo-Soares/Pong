@@ -1,5 +1,3 @@
-from ctypes.wintypes import tagMSG
-from pickletools import TAKEN_FROM_ARGUMENT1
 import pygame
 
 
@@ -67,12 +65,13 @@ class Player:
 
 
 class Bola:
-    def __init__(self, posicao=list, tamanho_tela=tuple, tamanho=20, cor=[255,255,255], velocidade=[5, 5]):
+    def __init__(self, posicao=list, tamanho_tela=tuple, tamanho=20, cor=[255,255,255], velocidade=5):
         self.posicao = posicao
         self.tamanho = tamanho
         self.cor = cor
         self.tamanho_tela = tamanho_tela
         self.velocidade = velocidade
+        self.velocidade_bola = [self.velocidade, 0]
 
     def colisao_cima_baixo(self):
         '''
@@ -99,7 +98,7 @@ class Bola:
         :return: A posição referente ao eixo X e posição referente ao eixo Y
         '''
 
-        if self.velocidade[0] > 0:
+        if self.velocidade_bola[0] > 0:
             posicao_bola_x = self.posicao[0] + self.tamanho
         else:
             posicao_bola_x = self.posicao[0]
@@ -120,16 +119,29 @@ class Bola:
                 return True
         return False
 
+    def definir_velocidade(self, p):
+        '''
+        -> Define a velocidade do objeto dependendo do local que colidiu com o player
+        '''
+
+        tamanho_player = p[1][1]-p[1][0]
+        distancia_centro_final = (tamanho_player/2)+(self.tamanho/2)
+        distencia_entre_os_centros = (self.posicao[1] + (self.tamanho/2)) - (p[1][0] + (tamanho_player/2))
+        nova_velocidade_eixo_y = (distencia_entre_os_centros * self.velocidade)/distancia_centro_final
+
+        self.velocidade_bola[1] = nova_velocidade_eixo_y
+
     def calcular_posicao(self, players):
         if self.colisao_cima_baixo():
-            self.velocidade[1] *= -1
+            self.velocidade_bola[1] *= -1
         
         for player in players:
             if self.colisao_player(player):
-                self.velocidade[0] *= -1
+                self.velocidade_bola[0] *= -1
+                self.definir_velocidade(player)
 
-        self.posicao[0] += self.velocidade[0]
-        self.posicao[1] += self.velocidade[1]
+        self.posicao[0] += self.velocidade_bola[0]
+        self.posicao[1] += self.velocidade_bola[1]
 
     def desenhar(self, tela):
         pygame.draw.rect(tela, self.cor, pygame.Rect(self.posicao[0], self.posicao[1], self.tamanho, self.tamanho))

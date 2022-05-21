@@ -1,5 +1,5 @@
 import pygame
-
+from random import randint
 
 class Player:
     def __init__(self, posicao=list, tamanho=(16, 80), tamanho_tela=tuple, cor=(255,255,255), velocidade_p=8):
@@ -9,6 +9,7 @@ class Player:
         self.velocidade = 0
         self.velocidade_p = velocidade_p
         self.tamanho_tela = tamanho_tela
+        self.pontos = 0
 
     def get_local(self):
         '''
@@ -72,6 +73,14 @@ class Bola:
         self.tamanho_tela = tamanho_tela
         self.velocidade = velocidade
         self.velocidade_bola = [self.velocidade, 0]
+    
+    def resetar_posicao(self):
+        '''
+        -> Retornar o objeto para a posição inicial no eixo X e no Y aleatorio, resetando a velocidade no eixo Y.
+        '''
+        local_spaw = randint(0, self.tamanho_tela[1] - self.tamanho)
+        self.posicao = list(((self.tamanho_tela[0]/2)-self.tamanho/2, local_spaw))
+        self.velocidade_bola[1] = 0
 
     def colisao_cima_baixo(self):
         '''
@@ -92,6 +101,24 @@ class Bola:
             return True
         return False
     
+    def colidiu_lado_direito(self):
+        '''
+        -> Verifica se o objeto colidiu com o lado direito
+        :return: True se colidiu
+        '''
+        if self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
+            return True
+        return False
+
+    def colidiu_lado_esquerdo(self):
+        '''
+        -> Verifica se o objeto colidiu com o lado esquerdo
+        :return: True se colidiu
+        '''
+        if self.posicao[0] <= 0:
+            return True
+        return False
+
     def get_local_vel(self):
         '''
         -> Obter o valor da posicao do objeto relativo a velocidade no eixo X e das duas no eio Y.
@@ -145,3 +172,17 @@ class Bola:
 
     def desenhar(self, tela):
         pygame.draw.rect(tela, self.cor, pygame.Rect(self.posicao[0], self.posicao[1], self.tamanho, self.tamanho))
+
+class Escrita:
+    def __init__(self, tamanho_tela):
+        pygame.font.init()
+        self.font = pygame.font.Font('fonts/minecraft_font.ttf', 30)
+        self.tamanho_tela = tamanho_tela
+    
+    def escrever_pontuacao(self, pontos, tela):
+        pontos1 = self.font.render(str(pontos[0]), 1, (255,255,255))
+        pontos2 = self.font.render(str(pontos[1]), 1, (255,255,255))
+
+        tela.blit(pontos1, ((self.tamanho_tela[0]/4, 35)))
+        tela.blit(pontos2, (((self.tamanho_tela[0]/4)*3, 35)))
+

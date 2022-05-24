@@ -100,8 +100,10 @@ class Bola:
         -> Verifica se o objeto colidiu com o lado direito e esquerdo da tela
         :return: True se saiu
         '''
-        if self.posicao[0] <= 0 or self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
-            return True
+        if self.posicao[0] <= 0:
+            return 'd'
+        elif self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
+            return 'e'
         return False
     
     def colidiu_lado_direito(self):

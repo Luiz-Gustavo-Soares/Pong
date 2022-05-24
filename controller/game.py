@@ -39,6 +39,11 @@ class Game:
     
             self.bola.resetar_posicao()
 
+    def desenhar(self):
+        self.bola.desenhar(self.tela)
+        self.player1.desenhar(self.tela)
+        self.player2.desenhar(self.tela)
+
     def iniciar_game(self):
         self.tela = pygame.display.set_mode((self.config.LARGURA, self.config.ALTURA))
         

@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 from random import randint
 
 class Player:
@@ -73,6 +74,8 @@ class Bola:
         self.tamanho_tela = tamanho_tela
         self.velocidade = velocidade
         self.velocidade_bola = [self.velocidade, 0]
+
+        self.sons = Sons()
     
     def resetar_posicao(self):
         '''
@@ -162,16 +165,18 @@ class Bola:
         if self.colisao_cima_baixo():
             self.velocidade_bola[1] *= -1
         
-        for player in players:
-            if self.colisao_player(player):
-                self.velocidade_bola[0] *= -1
-                self.definir_velocidade(player)
+        else:
+            for player in players:
+                if self.colisao_player(player):
+                    self.velocidade_bola[0] *= -1
+                    self.definir_velocidade(player)
 
         self.posicao[0] += self.velocidade_bola[0]
         self.posicao[1] += self.velocidade_bola[1]
 
     def desenhar(self, tela):
         pygame.draw.rect(tela, self.cor, pygame.Rect(self.posicao[0], self.posicao[1], self.tamanho, self.tamanho))
+
 
 class Escrita:
     def __init__(self, tamanho_tela):
@@ -180,9 +185,23 @@ class Escrita:
         self.tamanho_tela = tamanho_tela
     
     def escrever_pontuacao(self, pontos, tela):
+        '''
+        -> Divide a tela em duas partes, e em cada uma escreve a pontuação.
+        :param pontos: recebem uma lista de 2 posiçoes com cada poontuação.
+        :param tela: tela a ser escrita
+        '''
         pontos1 = self.font.render(str(pontos[0]), 1, (255,255,255))
         pontos2 = self.font.render(str(pontos[1]), 1, (255,255,255))
 
         tela.blit(pontos1, ((self.tamanho_tela[0]/4, 35)))
         tela.blit(pontos2, (((self.tamanho_tela[0]/4)*3, 35)))
 
+
+class Sons:
+    def __init__(self):
+        mixer.init()
+    
+    def quicar(self):
+        mixer.music.load("sounds/quicando.wav")
+        mixer.music.play()
+        mixer.music.set_volume(1)

@@ -84,6 +84,7 @@ class Bola:
         local_spaw = randint(0, self.tamanho_tela[1] - self.tamanho)
         self.posicao = list(((self.tamanho_tela[0]/2)-self.tamanho/2, local_spaw))
         self.velocidade_bola[1] = 0
+        self.velocidade_bola[0] *= -1
 
     def colisao_cima_baixo(self):
         '''
@@ -95,34 +96,29 @@ class Bola:
         else:
             return False
 
-    def saiu_fora_direito_esquerdo(self):
+    def verificar_colisao_bordas(self):
         '''
-        -> Verifica se o objeto colidiu com o lado direito e esquerdo da tela
-        :return: True se saiu
+        -> Verifica se o objeto colidiu com um dos lados da tela
+        :return: Dicionario indicando se colidiu, com direção (direita, esquerda, cima, baixo) e referencia (d.e., c.b.), se não colidiu retornara False
         '''
-        if self.posicao[0] <= 0:
-            return 'd'
-        elif self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
-            return 'e'
-        return False
-    
-    def colidiu_lado_direito(self):
-        '''
-        -> Verifica se o objeto colidiu com o lado direito
-        :return: True se colidiu
-        '''
-        if self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
-            return True
-        return False
+        r = {}
 
-    def colidiu_lado_esquerdo(self):
-        '''
-        -> Verifica se o objeto colidiu com o lado esquerdo
-        :return: True se colidiu
-        '''
         if self.posicao[0] <= 0:
-            return True
-        return False
+            r = {'direcao': 'direita', 'referencia': 'd.e.'}
+        elif self.posicao[0] + self.tamanho >= self.tamanho_tela[0]:
+            r = {'direcao': 'esquerda', 'referencia': 'd.e.'}
+        
+        elif self.posicao[1] <= 0:
+            r = {'direcao': 'cima', 'referencia': 'c.b.'}
+        
+        elif self.posicao[1] + self.tamanho >= self.tamanho_tela[1]:
+            r = {'direcao': 'baixo', 'referencia': 'c.b.'}
+
+        else:
+            return False
+        
+        return r
+    
 
     def get_local_vel(self):
         '''
@@ -164,12 +160,16 @@ class Bola:
         self.velocidade_bola[1] = nova_velocidade_eixo_y
 
     def calcular_posicao(self, players):
-        if self.colisao_cima_baixo():
-            self.velocidade_bola[1] *= -1
+        colisao = self.verificar_colisao_bordas()
+        if colisao:
+            if colisao['referencia'] == 'c.b.':
+                self.sons.quicar()
+                self.velocidade_bola[1] *= -1
         
         else:
             for player in players:
                 if self.colisao_player(player):
+                    self.sons.quicar()
                     self.velocidade_bola[0] *= -1
                     self.definir_velocidade(player)
 

@@ -30,14 +30,15 @@ class Game:
             self.player1.move_down()
 
     def controle_pontos(self):
-        saiu = self.bola.saiu_fora_direito_esquerdo()
-        if saiu:
-            if saiu == 'e':
-                self.player1.pontos += 1
-            else:
-                self.player2.pontos += 1
+        bola_colisao = self.bola.verificar_colisao_bordas()
+        if bola_colisao:
+            if bola_colisao['referencia'] == 'd.e.':
+                if bola_colisao['direcao'] == 'esquerda':
+                    self.player1.pontos += 1
+                else:
+                    self.player2.pontos += 1
     
-            self.bola.resetar_posicao()
+                self.bola.resetar_posicao()
 
     def desenhar(self):
         self.bola.desenhar(self.tela)
@@ -65,8 +66,6 @@ class Game:
             self.escrita.escrever_pontuacao((self.player1.pontos, self.player2.pontos), self.tela)
             
             self.bola.calcular_posicao((self.player1.get_local(), self.player2.get_local()))    
-            self.bola.desenhar(self.tela)
-            self.player1.desenhar(self.tela)
-            self.player2.desenhar(self.tela)
+            self.desenhar()
 
             pygame.display.flip()
